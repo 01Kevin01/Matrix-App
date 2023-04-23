@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Three.js Cube Animation</title>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+      // Create a renderer, camera and scene
+      const renderer = new THREE.WebGLRenderer();
+      const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000); // Increase the field of view to 50
+      const scene = new THREE.Scene();
+      
+      // Create a cube and add it to the scene
+      const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+      const cubeMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00, wireframe: true}); // Add wireframe property to the material
+      const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      scene.add(cube);
+      
+      // Position the camera and cube
+      camera.position.z = 3; // Move the camera closer to the cube
+      cube.position.set(0, 0, 0);
+      
+      // Add mouse control for the cube
+      const mouse = new THREE.Vector2();
+      const raycaster = new THREE.Raycaster();
+      let isDragging = false;
+      let previousMousePosition = {x: 0, y: 0};
+      
+      function onMouseMove(event) {
+        event.preventDefault();
+        const deltaMove = {
+          x: event.clientX - previousMousePosition.x,
+          y: event.clientY - previousMousePosition.y
+        };
+        
+        if (isDragging) {
+          const deltaRotationQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(
+            toRadians(deltaMove.y * 1),
+            toRadians(deltaMove.x * 1),
+            0,
+            'XYZ'
+          ));
+          cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
+        }
+        
+        previousMousePosition = {
+          x: event.clientX,
+          y: event.clientY
+        };
+      }
+      
+      function onMouseDown(event) {
+        event.preventDefault();
+        isDragging = true;
+      }
+      
+      function onMouseUp(event) {
+        event.preventDefault();
+        isDragging = false;
+      }
+      
+      function toRadians(angle) {
+        return angle * (Math.PI / 180);
+      }
+      
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mousedown', onMouseDown);
+      window.addEventListener('mouseup', onMouseUp);
+      
+      // Animate the cube
+      const animate = function() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      };
+      
+      // Add the renderer to the page and start the animation
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+      animate();
+    </script>
+  </body>
+</html>
